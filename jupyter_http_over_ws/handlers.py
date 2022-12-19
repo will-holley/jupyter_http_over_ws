@@ -175,7 +175,6 @@ class HttpOverWebSocketHandler(_WebSocketHandlerBase):
     parsed_auth_url = urlparse.urlparse(auth_url)
 
     try:
-      _validate_same_domain(self.request, parsed_auth_url)
       extra_cookies = yield _perform_request_and_extract_cookies(
           parsed_auth_url, self.ca_certs, self._get_http_client())
     except Exception:  # pylint:disable=broad-except
@@ -402,7 +401,6 @@ class ProxiedSocketHandler(_WebSocketHandlerBase):
     parsed_auth_url = urlparse.urlparse(auth_url)
 
     try:
-      _validate_same_domain(self.request, parsed_auth_url)
       extra_cookies = yield _perform_request_and_extract_cookies(
           parsed_auth_url, self.ca_certs, self._get_http_client())
     except Exception as e:  # pylint:disable=broad-except
@@ -493,14 +491,6 @@ class ProxiedSocketHandler(_WebSocketHandlerBase):
 
 def _modify_proxy_request_test_only(unused_request):
   """Hook for modifying the request before making a fetch (test-only)."""
-
-
-def _validate_same_domain(request, url):
-  handler_domain = urlparse.urlparse('{}://{}'.format(request.protocol,
-                                                      request.host))
-  if (handler_domain.scheme, handler_domain.netloc) != (url.scheme, url.netloc):
-    raise ValueError('Invalid cross-domain request from {} to {}'.format(
-        handler_domain.geturl(), url.geturl()))
 
 
 @gen.coroutine
